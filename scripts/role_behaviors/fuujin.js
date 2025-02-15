@@ -43,6 +43,9 @@ function affectByPosition(player, dimension, pos) {
             if (entity.matches({ families: ["mob"] })) {
                 entity.applyDamage(12, { cause: "charging", damagingEntity: player });
             }
+            if (entity.matches({ families: ["player"] })) {
+                entity.applyDamage(12, { cause: "charging", damagingEntity: player });
+            }
             system.runTimeout(() => {
                 entity.runCommand("tag @s remove jobpvp_reflected")
             }, 10);
@@ -50,6 +53,14 @@ function affectByPosition(player, dimension, pos) {
 }
 
 export function fuujin_behavior() {
+    system.runInterval(() => {
+        for (const player of world.getPlayers()) {
+            if (player.hasTag("jobpvp_role_fuujin")) {
+                player.runCommand("particle minecraft:wind_explosion_emitter ~~-1~");
+                player.runCommand("effect @s slow_falling 20 255 true");
+            }
+        }
+    }, 1);
     /*system.runInterval(() => {
         for (const player of world.getPlayers()) {
             if (player.hasTag("jobpvp_role_fuujin")) {
