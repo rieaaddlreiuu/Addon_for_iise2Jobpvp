@@ -1,0 +1,33 @@
+{
+    "pools": [
+        {
+            "rolls": 27,
+            "entries": [
+                {
+                    "type": "empty",
+                    "weight": 28
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:apple",
+                    "weight": 7
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:bread",
+                    "weight": 7
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:cooked_beef",
+                    "weight": 7
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:golden_apple",
+                    "weight": 1
+                }
+            ]
+        }
+    ]
+}

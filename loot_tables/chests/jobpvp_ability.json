@@ -1,0 +1,28 @@
+{
+    "pools": [
+        {
+            "rolls": 5,
+            "entries": [
+                {
+                    "type": "empty",
+                    "weight": 2
+                },
+                {
+                    "type": "item",
+                    "name": "jobpvp:sonar",
+                    "weight": 1
+                },
+                {
+                    "type": "item",
+                    "name": "jobpvp:jump",
+                    "weight": 1
+                },
+                {
+                    "type": "item",
+                    "name": "jobpvp:speedup",
+                    "weight": 1
+                }
+            ]
+        }
+    ]
+}

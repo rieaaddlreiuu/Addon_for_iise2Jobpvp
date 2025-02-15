@@ -1,0 +1,38 @@
+{
+    "format_version": 2,
+    "header": {
+      "name": "JobPvp_beha",
+      "description": "役職pvp用のビヘイビアーパック。function,item,scriptを管理。",
+      "uuid": "376472ee-a6d1-4776-9a08-0d41e859230e",
+      "version": [ 1, 0, 0 ],
+      "min_engine_version": [ 1, 21, 30 ]
+    },
+    "modules": [
+      {
+        "type": "script",
+        "language": "javascript",
+        "uuid": "b9ec7f80-5108-4c7f-ac9d-0a037fb23c2a",
+        "version": [ 1, 0, 0 ],
+        "entry": "scripts/Main.js"
+      },
+      {
+        "type": "data",
+        "uuid": "b9ec7f80-5108-4c7f-ac9d-0a037fb23c2a",
+        "version": [ 1, 0, 0 ]
+      }
+    ],
+    "dependencies": [
+      {
+        "module_name": "@minecraft/server",
+        "version": "1.8.0"
+      },
+      {
+        "module_name": "@minecraft/server-ui",
+        "version": "1.1.0"
+      },
+     {
+       "uuid":"aefa1524-7953-4b93-b2df-f9398f1738fb",
+        "version":[1,0,0]
+      }
+    ]
+  }

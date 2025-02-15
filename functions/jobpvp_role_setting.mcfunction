@@ -1,0 +1,7 @@
+function jobpvp_roles/warrior
+function jobpvp_roles/neet
+function jobpvp_roles/archer
+function jobpvp_roles/raijin
+function jobpvp_roles/snatcher
+function jobpvp_roles/hellman
+function jobpvp_roles/fist
