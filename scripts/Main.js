@@ -6,6 +6,7 @@ import { hellman_behavior } from "./role_behaviors/hellman";
 import { warrior_behavior } from "./role_behaviors/warrior";
 import { snatcher_behavior } from "./role_behaviors/snatcher";
 import { fist_behavior } from "./role_behaviors/fist";
+import { fuujin_behavior } from "./role_behaviors/fuujin";
 
 function EntityDistance(entity1, entity2) {
     return Math.sqrt((entity1.location.x - entity2.location.x) ^ 2 + (entity1.location.y - entity2.location.y) ^ 2 + (entity1.location.z - entity2.location.z) ^ 2)
@@ -23,6 +24,7 @@ hellman_behavior();
 warrior_behavior();
 snatcher_behavior();
 fist_behavior();
+fuujin_behavior();
 
 world.afterEvents.itemUse.subscribe(data => {
     let player = data.source;

@@ -5,3 +5,4 @@ function jobpvp_roles/raijin
 function jobpvp_roles/snatcher
 function jobpvp_roles/hellman
 function jobpvp_roles/fist
+function jobpvp_roles/fuujin

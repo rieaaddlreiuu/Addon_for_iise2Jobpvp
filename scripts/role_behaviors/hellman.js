@@ -36,6 +36,7 @@ export function hellman_behavior() {
                     system.runTimeout(() => {
                         for (let i = 0; i < 20; i++) {
                             target.runCommand("tp @s "+(177+randomBetween(-area,area))+" 32 "+(-176+randomBetween(-area,area)));
+                            target.runCommand("kill @e[name=\"地獄のおともだち\"]");
                         }
                     }, 190);
                     system.runTimeout(() => {
