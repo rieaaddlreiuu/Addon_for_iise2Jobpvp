@@ -13,17 +13,21 @@ export function warrior_behavior() {
         let player = data.damageSource.damagingEntity;
         let hurtEntity = data.hurtEntity;
         let damage_amount = data.damage;
-        let power = damage_amount * 3;
+        let power = damage_amount * 5;
         if (player.hasTag("jobpvp_role_warrior")) {
-            runWithProbability(0.1, function () {
+            runWithProbability(0.3, function () {
                 player.runCommand("playsound random.anvil_land @p");
                 system.runTimeout(() => {
                     hurtEntity.applyDamage(power, { cause: "selfDestruct" });
+                    hurtEntity.runCommand("particle minecraft:smash_ground_particle_center ~~~");
+                    hurtEntity.runCommand("particle minecraft:knockback_roar_particle ~~~");
+                    hurtEntity.runCommand("particle minecraft:knockback_roar_particle ~~~");
+                    hurtEntity.runCommand("particle minecraft:knockback_roar_particle ~~~");
                     return;
                 }, 1);
             });
         }
         return;
     });
-    
+
 }
