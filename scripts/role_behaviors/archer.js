@@ -12,6 +12,10 @@ export function archer_behavior() {
         if (player.hasTag("jobpvp_role_archer") && projectile.typeId == "minecraft:arrow") {
             system.runTimeout(() => {
                 hurtEntity.applyDamage(3 * power, { cause: "selfDestruct" });
+                hurtEntity.runCommand("particle minecraft:smash_ground_particle_center ~~~");
+                hurtEntity.runCommand("particle minecraft:knockback_roar_particle ~~~");
+                hurtEntity.runCommand("particle minecraft:knockback_roar_particle ~~~");
+                hurtEntity.runCommand("particle minecraft:knockback_roar_particle ~~~");
             }, 1);
         }
         return;
