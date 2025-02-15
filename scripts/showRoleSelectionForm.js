@@ -13,6 +13,8 @@ function show_description_warrior(player) {
 
         if (selection === 0) {
             player.runCommand("function jobpvp_role_reset")
+            player.runCommand("clear @s");
+            player.runCommand("give @s diamond");
             player.runCommand("tag @s add jobpvp_role_warrior");
         }
 
@@ -33,6 +35,8 @@ function show_description_neet(player) {
 
         if (selection === 0) {
             player.runCommand("function jobpvp_role_reset")
+            player.runCommand("clear @s");
+            player.runCommand("give @s diamond");
             player.runCommand("tag @s add jobpvp_role_neet");
         }
 
@@ -43,23 +47,25 @@ function show_description_neet(player) {
 }
 //アーチャー
 function show_description_archer(player) {
-  const job = new ActionFormData();
-  job.title("アーチャー");
-  job.body("しゃがむと相手を遅くする\n弓矢のダメージが高い");
-  job.button("アーチャーにする");
-  job.button("他の役職を見る");
-  job.show(player).then(({ selection, canceled }) => {
-      if (canceled) return;
+    const job = new ActionFormData();
+    job.title("アーチャー");
+    job.body("しゃがむと相手を遅くする\n弓矢のダメージが高い");
+    job.button("アーチャーにする");
+    job.button("他の役職を見る");
+    job.show(player).then(({ selection, canceled }) => {
+        if (canceled) return;
 
-      if (selection === 0) {
-        player.runCommand("function jobpvp_role_reset")
-        player.runCommand("tag @s add jobpvp_role_archer");    
-    }
+        if (selection === 0) {
+            player.runCommand("function jobpvp_role_reset")
+            player.runCommand("clear @s");
+            player.runCommand("give @s diamond");
+            player.runCommand("tag @s add jobpvp_role_archer");
+        }
 
-    if (selection === 1) {
-        showRoleSelectionForm(player);
-    }
-  });
+        if (selection === 1) {
+            showRoleSelectionForm(player);
+        }
+    });
 }
 //雷神
 function show_description_raijin(player) {
@@ -70,18 +76,20 @@ function show_description_raijin(player) {
     job.button("他の役職を見る");
     job.show(player).then(({ selection, canceled }) => {
         if (canceled) return;
-  
+
         if (selection === 0) {
             player.runCommand("function jobpvp_role_reset")
-          player.runCommand("tag @s add jobpvp_role_raijin");    
-      }
-  
-      if (selection === 1) {
-          showRoleSelectionForm(player);
-      }
+            player.runCommand("clear @s");
+            player.runCommand("give @s diamond");
+            player.runCommand("tag @s add jobpvp_role_raijin");
+        }
+
+        if (selection === 1) {
+            showRoleSelectionForm(player);
+        }
     });
-  }
-  //罠師
+}
+//罠師
 function show_description_snatcher(player) {
     const job = new ActionFormData();
     job.title("罠師");
@@ -90,18 +98,20 @@ function show_description_snatcher(player) {
     job.button("他の役職を見る");
     job.show(player).then(({ selection, canceled }) => {
         if (canceled) return;
-  
+
         if (selection === 0) {
             player.runCommand("function jobpvp_role_reset")
-          player.runCommand("tag @s add jobpvp_role_snatcher");    
-      }
-  
-      if (selection === 1) {
-          showRoleSelectionForm(player);
-      }
+            player.runCommand("clear @s");
+            player.runCommand("give @s diamond");
+            player.runCommand("tag @s add jobpvp_role_snatcher");
+        }
+
+        if (selection === 1) {
+            showRoleSelectionForm(player);
+        }
     });
-  }
-  //地獄
+}
+//地獄
 function show_description_hell(player) {
     const job = new ActionFormData();
     job.title("地獄");
@@ -110,18 +120,20 @@ function show_description_hell(player) {
     job.button("他の役職を見る");
     job.show(player).then(({ selection, canceled }) => {
         if (canceled) return;
-  
+
         if (selection === 0) {
             player.runCommand("function jobpvp_role_reset")
-          player.runCommand("tag @s add jobpvp_role_hellman");    
-      }
-  
-      if (selection === 1) {
-          showRoleSelectionForm(player);
-      }
+            player.runCommand("clear @s");
+            player.runCommand("give @s diamond");
+            player.runCommand("tag @s add jobpvp_role_hellman");
+        }
+
+        if (selection === 1) {
+            showRoleSelectionForm(player);
+        }
     });
-  }
-  //２１歳拳で
+}
+//２１歳拳で
 function show_description_21years(player) {
     const job = new ActionFormData();
     job.title("21歳拳で");
@@ -130,38 +142,42 @@ function show_description_21years(player) {
     job.button("他の役職を見る");
     job.show(player).then(({ selection, canceled }) => {
         if (canceled) return;
-  
+
         if (selection === 0) {
             player.runCommand("function jobpvp_role_reset")
-          player.runCommand("tag @s add jobpvp_role_fist");    
-      }
-  
-      if (selection === 1) {
-          showRoleSelectionForm(player);
-      }
+            player.runCommand("clear @s");
+            player.runCommand("give @s diamond");
+            player.runCommand("tag @s add jobpvp_role_fist");
+        }
+
+        if (selection === 1) {
+            showRoleSelectionForm(player);
+        }
     });
-  }
-  //風神（製作中）
+}
+//風神（製作中）
 function show_description_zaraki(player) {
     const job = new ActionFormData();
-    job.title("制作中");
+    job.title("風神");
     job.body("製作中しばらくお待ちください");
-    job.button("ここを押すとニートになります");
+    job.button("風神にする");
     job.button("他の役職を見る");
     job.show(player).then(({ selection, canceled }) => {
         if (canceled) return;
-  
+
         if (selection === 0) {
             player.runCommand("function jobpvp_role_reset")
-          player.runCommand("tag @s add jobpvp_role_neet");    
-      }
-  
-      if (selection === 1) {
-          showRoleSelectionForm(player);
-      }
+            player.runCommand("clear @s");
+            player.runCommand("give @s diamond");
+            player.runCommand("tag @s add jobpvp_role_fuujin");
+        }
+
+        if (selection === 1) {
+            showRoleSelectionForm(player);
+        }
     });
-  }
-  //製作中
+}
+//製作中
 function show_description_honoo(player) {
     const job = new ActionFormData();
     job.title("製作中");
@@ -170,18 +186,20 @@ function show_description_honoo(player) {
     job.button("他の役職を見る");
     job.show(player).then(({ selection, canceled }) => {
         if (canceled) return;
-  
+
         if (selection === 0) {
             player.runCommand("function jobpvp_role_reset")
-          player.runCommand("tag @s add jobpvp_role_neet");    
-      }
-  
-      if (selection === 1) {
-          showRoleSelectionForm(player);
-      }
+            player.runCommand("clear @s");
+            player.runCommand("give @s diamond");
+            player.runCommand("tag @s add jobpvp_role_neet");
+        }
+
+        if (selection === 1) {
+            showRoleSelectionForm(player);
+        }
     });
-  }
-  //製作中
+}
+//製作中
 function show_description_koori(player) {
     const job = new ActionFormData();
     job.title("製作中");
@@ -190,46 +208,48 @@ function show_description_koori(player) {
     job.button("他の役職を見る");
     job.show(player).then(({ selection, canceled }) => {
         if (canceled) return;
-  
+
         if (selection === 0) {
             player.runCommand("function jobpvp_role_reset")
-          player.runCommand("tag @s add jobpvp_role_neet");    
-      }
-  
-      if (selection === 1) {
-          showRoleSelectionForm(player);
-      }
+            player.runCommand("clear @s");
+            player.runCommand("give @s diamond");
+            player.runCommand("tag @s add jobpvp_role_neet");
+        }
+
+        if (selection === 1) {
+            showRoleSelectionForm(player);
+        }
     });
-  }
+}
 
-function showRoleSelectionForm(player){
+function showRoleSelectionForm(player) {
     const sampleForm = new ActionFormData();
-        sampleForm.title("役職選択");
-        sampleForm.body("使いたい役職を選択してください");
-        sampleForm.button("戦士");
-        sampleForm.button("ニート");
-        sampleForm.button("アーチャー");
-        sampleForm.button("雷神");
-        sampleForm.button("罠師師");
-        sampleForm.button("地獄");
-        sampleForm.button("21歳拳で");
-        sampleForm.button("製作中");
-        sampleForm.button("製作中");
-        sampleForm.button("製作中");
+    sampleForm.title("役職選択");
+    sampleForm.body("使いたい役職を選択してください");
+    sampleForm.button("戦士");
+    sampleForm.button("ニート");
+    sampleForm.button("アーチャー");
+    sampleForm.button("雷神");
+    sampleForm.button("罠師師");
+    sampleForm.button("地獄");
+    sampleForm.button("21歳拳で");
+    sampleForm.button("風神");
+    sampleForm.button("製作中");
+    sampleForm.button("製作中");
 
-        sampleForm.show(player).then(({ selection, canceled }) => {
-            if (canceled) return;
+    sampleForm.show(player).then(({ selection, canceled }) => {
+        if (canceled) return;
 
-            if (selection === 0) {
-                show_description_warrior(player);
-            }
-            if (selection === 1) {
-                show_description_neet(player);
-            }
-            if (selection === 2) {
-              show_description_archer(player);
-          }
-          if (selection === 3) {
+        if (selection === 0) {
+            show_description_warrior(player);
+        }
+        if (selection === 1) {
+            show_description_neet(player);
+        }
+        if (selection === 2) {
+            show_description_archer(player);
+        }
+        if (selection === 3) {
             show_description_raijin(player);
         }
         if (selection === 4) {
@@ -250,21 +270,21 @@ function showRoleSelectionForm(player){
         if (selection === 9) {
             show_description_koori(player);
         }
-            return;
-        })
+        return;
+    })
 }
 
-world.afterEvents.itemUse.subscribe(data => {
-    const player = data.source;
-    const item = data.itemStack;
-    
-    if (item.typeId === "minecraft:diamond") {
-        showRoleSelectionForm(player);
-    }
-
-});
 
 
-export function showRoleSelectionForm(player) {
 
+export function showRoleSelectionEvents(player) {
+    world.afterEvents.itemUse.subscribe(data => {
+        const player = data.source;
+        const item = data.itemStack;
+
+        if (item.typeId === "minecraft:diamond") {
+            showRoleSelectionForm(player);
+        }
+
+    });
 }
