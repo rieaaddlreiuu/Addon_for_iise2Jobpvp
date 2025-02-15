@@ -1,5 +1,11 @@
-import { world, system, Player, ItemStack, ItemUseAfterEvent } from "@minecraft/server";
+import { world, system, Player, ItemStack, ItemUseAfterEvent, EntityHealthComponent, EntityComponentTypes } from "@minecraft/server";
 import { ModalFormData, ModalFormResponse, ActionFormData, ActionFormResponse } from "@minecraft/server-ui";
+
+function Damage(entity, power) {
+    const health = entity.getComponent(EntityComponentTypes.Health);
+    health.setCurrentValue(health.currentValue - power);
+}
+
 
 export function archer_behavior() {
     world.afterEvents.entityHurt.subscribe(data => {
@@ -7,11 +13,11 @@ export function archer_behavior() {
         let hurtEntity = data.hurtEntity;
         let projectile = data.damageSource.damagingProjectile;
         let damage_amount = data.damage;
-        let power = damage_amount * 3;
+        let power = damage_amount * 9;
 
         if (player.hasTag("jobpvp_role_archer") && projectile.typeId == "minecraft:arrow") {
             system.runTimeout(() => {
-                hurtEntity.applyDamage(3 * power, { cause: "selfDestruct" });
+                Damage(hurtEntity,power);
                 hurtEntity.runCommand("particle minecraft:smash_ground_particle_center ~~~");
                 hurtEntity.runCommand("particle minecraft:knockback_roar_particle ~~~");
                 hurtEntity.runCommand("particle minecraft:knockback_roar_particle ~~~");
