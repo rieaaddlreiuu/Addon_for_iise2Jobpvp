@@ -46,70 +46,85 @@ function inverseVelocity(entity) {
 
 }
 
-// 風による攻撃。周囲にダメージ&ノックバックを与え、(確率で)particleを出す
-function wind_attack(player, pos, particle_probability = 0.3) {
-    try {
-        let dimension = player.dimension;
-        dimension
-            .getEntities()
-            .filter((entity) => {
-                return (EntityBlockDistance(entity, pos) < 3.34 && !entity.hasTag("jobpvp_reflected"));
-            })
-            .forEach((entity) => {
-                Knockback(entity);
-                system.runTimeout(() => {
-                    if (entity.matches({ families: ["mob"] })) {
-                        entity.applyDamage(12, { cause: "magic", damagingEntity: player });
-                    }
-                    if (entity.matches({ families: ["player"] })) {
-                        entity.applyDamage(12, { cause: "magic", damagingEntity: player });
-                    }
-                }, 3);
-            });
-
-        //particleを出す(確率で)
-
-        let position_cmd = " " + pos.x + " " + pos.y + " " + pos.z;
-        runWithProbability(particle_probability, () => {
-            player.runCommand("particle minecraft:wind_explosion_emitter " + position_cmd);
-        });
-    } catch (error) {
-        world.sendMessage("" + error.message);
+//playerによって嵐をposに発生させる
+function storm(player, pos) {
+    let direction_rad = 0;
+    let radius = 0;
+    let rotations = 20;
+    let hspeed = 0.1;
+    let expantion = 0.05;
+    let step = 11;
+    let fluctuation = 0.3;
+    for (let i = 0; i < step * rotations; i++) {
+        system.runTimeout(() => {
+            direction_rad = 2 * i * 3.14159265358979 / (step) + Math.random() * fluctuation;
+            let wind_position = {
+                x: pos.x + radius * Math.sin(direction_rad),
+                y: pos.y + i * hspeed,
+                z: pos.z + radius * Math.cos(direction_rad)
+            }
+            radius += expantion;
+            wind_attack(player, wind_position, 0.8);
+        }, i);
     }
 }
 
-//風による攻撃だが、反射する
-function wind_reflect(player, pos, particle_probability = 0.3) {
-    try {
-        let dimension = player.dimension;
-        dimension
-            .getEntities()
-            .filter((entity) => {
-                return (EntityBlockDistance(entity, pos) < 3.34 && !entity.hasTag("jobpvp_reflected"));
-            })
-            .forEach((entity) => {
-                inverseVelocity(entity);
-                entity.runCommand("tag @s add jobpvp_reflected");
+// 風による攻撃。周囲にダメージ&ノックバックを与え、(確率で)particleを出す
+function wind_attack(player, pos, particle_probability = 0.3) {
+    let dimension = player.dimension;
+    dimension
+        .getEntities()
+        .filter((entity) => {
+            return (EntityBlockDistance(entity, pos) < 3.34 && !entity.hasTag("jobpvp_reflected"));
+        })
+        .forEach((entity) => {
+            Knockback(entity);
+            system.runTimeout(() => {
                 if (entity.matches({ families: ["mob"] })) {
                     entity.applyDamage(12, { cause: "magic", damagingEntity: player });
                 }
                 if (entity.matches({ families: ["player"] })) {
                     entity.applyDamage(12, { cause: "magic", damagingEntity: player });
                 }
-                system.runTimeout(() => {
-                    entity.runCommand("tag @s remove jobpvp_reflected")
-                }, 10);
-            });
-
-        //particleを出す(確率で)
-
-        let position_cmd = " " + pos.x + " " + pos.y + " " + pos.z;
-        runWithProbability(particle_probability, () => {
-            player.runCommand("particle minecraft:wind_explosion_emitter " + position_cmd);
+            }, 3);
         });
-    } catch (error) {
-        world.sendMessage("" + error.message);
-    }
+
+    //particleを出す(確率で)
+
+    let position_cmd = " " + pos.x + " " + pos.y + " " + pos.z;
+    runWithProbability(particle_probability, () => {
+        player.runCommand("particle minecraft:wind_explosion_emitter " + position_cmd);
+    });
+}
+
+//風による攻撃だが、反射する
+function wind_reflect(player, pos, particle_probability = 0.3) {
+    let dimension = player.dimension;
+    dimension
+        .getEntities()
+        .filter((entity) => {
+            return (EntityBlockDistance(entity, pos) < 3.34 && !entity.hasTag("jobpvp_reflected"));
+        })
+        .forEach((entity) => {
+            inverseVelocity(entity);
+            entity.runCommand("tag @s add jobpvp_reflected");
+            if (entity.matches({ families: ["mob"] })) {
+                entity.applyDamage(12, { cause: "magic", damagingEntity: player });
+            }
+            if (entity.matches({ families: ["player"] })) {
+                entity.applyDamage(12, { cause: "magic", damagingEntity: player });
+            }
+            system.runTimeout(() => {
+                entity.runCommand("tag @s remove jobpvp_reflected")
+            }, 10);
+        });
+
+    //particleを出す(確率で)
+
+    let position_cmd = " " + pos.x + " " + pos.y + " " + pos.z;
+    runWithProbability(particle_probability, () => {
+        player.runCommand("particle minecraft:wind_explosion_emitter " + position_cmd);
+    });
 }
 
 export function fuujin_behavior() {
@@ -119,8 +134,8 @@ export function fuujin_behavior() {
     //低速落下と風のエフェクト
     system.runInterval(() => {
         for (const player of world.getPlayers()) {
-            if (player.hasTag("jobpvp_role_fuujin")) {
-                player.runCommand("effect @s slow_falling 20 255 true");
+            if (player.hasTag("jobpvp_role_fuujin") && isBarehands(player)) {
+                player.runCommand("effect @s slow_falling 1 255 true");
                 runWithProbability(0.1, () => {
                     player.runCommand("particle minecraft:wind_explosion_emitter ~~-1~");
                 });
@@ -177,6 +192,20 @@ export function fuujin_behavior() {
 
                     wind_attack(player, pos, 0.8);
                 }, i)
+            }
+        }
+        //必殺技
+        //目の前に大きな嵐を起こして大ダメージ
+        if (player.hasTag("jobpvp_role_fuujin") && item.typeId === "minecraft:feather") {
+            let pos = {
+                x: player.location.x + 7 * player.getViewDirection().x,
+                y: player.location.y + 1,
+                z: player.location.z + 7 * player.getViewDirection().z
+            }
+            for(let i = 0; i < 40; i++){
+                system.runTimeout(() => {
+                    storm(player, pos);
+                }, i*15);
             }
         }
     });
