@@ -29,24 +29,57 @@ function runWithProbability(probability, func) {
     }
 }
 
+function Knockback(entity) {
+    const velocity = entity.getVelocity();
+    entity.applyKnockback(-velocity.x, -velocity.z, 1.14, 3.34);
+
+}
+
 function inverseVelocity(entity) {
-    if (entity.typeId != "minecraft:player") {
-        const velocity = entity.getVelocity();
-        entity.clearVelocity();
-        entity.applyImpulse({
-            x: -velocity.x,
-            y: -velocity.y,
-            z: -velocity.z
-        });
-    } else {
-        const velocity = entity.getVelocity();
-        entity.applyKnockback(-velocity.x, -velocity.z, 3.34, 1.2);
-    }
+    const velocity = entity.getVelocity();
+    entity.clearVelocity();
+    entity.applyImpulse({
+        x: -velocity.x,
+        y: -velocity.y,
+        z: -velocity.z
+    });
 
 }
 
 // 風による攻撃。周囲にダメージ&ノックバックを与え、(確率で)particleを出す
 function wind_attack(player, pos, particle_probability = 0.3) {
+    try {
+        let dimension = player.dimension;
+        dimension
+            .getEntities()
+            .filter((entity) => {
+                return (EntityBlockDistance(entity, pos) < 3.34 && !entity.hasTag("jobpvp_reflected"));
+            })
+            .forEach((entity) => {
+                Knockback(entity);
+                system.runTimeout(() => {
+                    if (entity.matches({ families: ["mob"] })) {
+                        entity.applyDamage(12, { cause: "magic", damagingEntity: player });
+                    }
+                    if (entity.matches({ families: ["player"] })) {
+                        entity.applyDamage(12, { cause: "magic", damagingEntity: player });
+                    }
+                }, 3);
+            });
+
+        //particleを出す(確率で)
+
+        let position_cmd = " " + pos.x + " " + pos.y + " " + pos.z;
+        runWithProbability(particle_probability, () => {
+            player.runCommand("particle minecraft:wind_explosion_emitter " + position_cmd);
+        });
+    } catch (error) {
+        world.sendMessage("" + error.message);
+    }
+}
+
+//風による攻撃だが、反射する
+function wind_reflect(player, pos, particle_probability = 0.3) {
     try {
         let dimension = player.dimension;
         dimension
@@ -87,11 +120,13 @@ export function fuujin_behavior() {
     system.runInterval(() => {
         for (const player of world.getPlayers()) {
             if (player.hasTag("jobpvp_role_fuujin")) {
-                player.runCommand("particle minecraft:wind_explosion_emitter ~~-1~");
                 player.runCommand("effect @s slow_falling 20 255 true");
+                runWithProbability(0.1, () => {
+                    player.runCommand("particle minecraft:wind_explosion_emitter ~~-1~");
+                });
             }
         }
-    }, 3);
+    }, 1);
 
     //風の攻撃
     system.runInterval(() => {
@@ -113,8 +148,8 @@ export function fuujin_behavior() {
                                 z: player.location.z - r * Math.sin(digree_rad)
                             }
 
-                            wind_attack(player, pos, 0.3);
-                            wind_attack(player, pos_inverse, 0.3);
+                            wind_reflect(player, pos, 0.3);
+                            wind_reflect(player, pos_inverse, 0.3);
                         } catch (error) {
                             world.sendMessage("" + error.message);
                         }
@@ -130,7 +165,7 @@ export function fuujin_behavior() {
         let player = data.source;
         let item = data.itemStack;
 
-        if (player.hasTag("jobpvp_role_fuujin")) {
+        if (player.hasTag("jobpvp_role_fuujin") && item.typeId === "minecraft:iron_sword") {
             //前方に直線状に風の攻撃
             for (let i = 3; i < N; i++) {
                 system.runTimeout(() => {
