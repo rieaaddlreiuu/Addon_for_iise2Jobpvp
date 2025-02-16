@@ -1,5 +1,13 @@
-import { world, system, Player, ItemStack, ItemUseAfterEvent, EntityHealthComponent, EntityComponentTypes, Dimension } from "@minecraft/server";
+import { world, system, Player, ItemStack, ItemUseAfterEvent, EntityHealthComponent, EntityComponentTypes, Dimension, EquipmentSlot } from "@minecraft/server";
 import { ModalFormData, ModalFormResponse, ActionFormData, ActionFormResponse } from "@minecraft/server-ui";
+
+function isBarehands(player) {
+    const equipmentCompPlayer = player.getComponent(EntityComponentTypes.Equippable);
+    if (equipmentCompPlayer) {
+        let mainhand_item = equipmentCompPlayer.getEquipment(EquipmentSlot.Mainhand);
+        return mainhand_item == null;
+    }
+}
 
 function EntityDistance(entity1, entity2) {
     let dx = entity1.location.x - entity2.location.x;
@@ -15,6 +23,12 @@ function EntityBlockDistance(entity, block_pos) {
     return (Math.sqrt(dx * dx + dy * dy + dz * dz));
 }
 
+function runWithProbability(probability, func) {
+    if (Math.random() < probability) {
+        func();
+    }
+}
+
 function inverseVelocity(entity) {
     if (entity.typeId != "minecraft:player") {
         const velocity = entity.getVelocity();
@@ -26,33 +40,50 @@ function inverseVelocity(entity) {
         });
     } else {
         const velocity = entity.getVelocity();
-        entity.applyKnockback(-velocity.x, -velocity.z, 5.0, 0.4);
+        entity.applyKnockback(-velocity.x, -velocity.z, 3.34, 1.2);
     }
 
 }
 
-function affectByPosition(player, dimension, pos) {
-    dimension
-        .getEntities()
-        .filter((entity) => {
-            return (EntityBlockDistance(entity, pos) < 3.34 && !entity.hasTag("jobpvp_reflected"));
-        })
-        .forEach((entity) => {
-            inverseVelocity(entity);
-            entity.runCommand("tag @s add jobpvp_reflected");
-            if (entity.matches({ families: ["mob"] })) {
-                entity.applyDamage(12, { cause: "charging", damagingEntity: player });
-            }
-            if (entity.matches({ families: ["player"] })) {
-                entity.applyDamage(12, { cause: "charging", damagingEntity: player });
-            }
-            system.runTimeout(() => {
-                entity.runCommand("tag @s remove jobpvp_reflected")
-            }, 10);
+// 風による攻撃。周囲にダメージ&ノックバックを与え、(確率で)particleを出す
+function wind_attack(player, pos, particle_probability = 0.3) {
+    try {
+        let dimension = player.dimension;
+        dimension
+            .getEntities()
+            .filter((entity) => {
+                return (EntityBlockDistance(entity, pos) < 3.34 && !entity.hasTag("jobpvp_reflected"));
+            })
+            .forEach((entity) => {
+                inverseVelocity(entity);
+                entity.runCommand("tag @s add jobpvp_reflected");
+                if (entity.matches({ families: ["mob"] })) {
+                    entity.applyDamage(12, { cause: "magic", damagingEntity: player });
+                }
+                if (entity.matches({ families: ["player"] })) {
+                    entity.applyDamage(12, { cause: "magic", damagingEntity: player });
+                }
+                system.runTimeout(() => {
+                    entity.runCommand("tag @s remove jobpvp_reflected")
+                }, 10);
+            });
+
+        //particleを出す(確率で)
+
+        let position_cmd = " " + pos.x + " " + pos.y + " " + pos.z;
+        runWithProbability(particle_probability, () => {
+            player.runCommand("particle minecraft:wind_explosion_emitter " + position_cmd);
         });
+    } catch (error) {
+        world.sendMessage("" + error.message);
+    }
 }
 
 export function fuujin_behavior() {
+    const N = 25;
+    const r = 3.5;
+
+    //低速落下と風のエフェクト
     system.runInterval(() => {
         for (const player of world.getPlayers()) {
             if (player.hasTag("jobpvp_role_fuujin")) {
@@ -60,57 +91,58 @@ export function fuujin_behavior() {
                 player.runCommand("effect @s slow_falling 20 255 true");
             }
         }
-    }, 1);
-    /*system.runInterval(() => {
-        for (const player of world.getPlayers()) {
-            if (player.hasTag("jobpvp_role_fuujin")) {
-                player.dimension
-                    .getEntities()
-                    .filter((entity) => {
-                        return (2.0 < EntityDistance(player, entity) && EntityDistance(player, entity) < 7.0 && !entity.hasTag("jobpvp_reflected"));
-                    })
-                    .forEach((entity) => {
-                        inverseVelocity(entity);
-                        entity.runCommand("tag @s add jobpvp_reflected");
-                        system.runTimeout(() => {
-                            entity.runCommand("tag @s remove jobpvp_reflected")
-                        }, 10);
-                    });
-                player.dimension
-                    .getEntities()
-                    .filter((entity) => {
-                        return (2.0 >= EntityDistance(player, entity) && !entity.hasTag("jobpvp_reflected"));
-                    })
-                    .forEach((entity) => {
-                        entity.runCommand("tag @s add jobpvp_reflected");
-                    });
-            }
-        }
-    }, 1);*/
-    let N = 25;
-    let r = 5.0;
+    }, 3);
+
+    //風の攻撃
     system.runInterval(() => {
         for (const player of world.getPlayers()) {
-            if (player.hasTag("jobpvp_role_fuujin")) {
+            if (player.hasTag("jobpvp_role_fuujin") && isBarehands(player)) {
                 for (let i = 0; i < N; i++) {
                     system.runTimeout(() => {
-                        let digree_rad = i * 3.14159265358979 / (N);
+                        try {
+                            let digree_rad = i * 3.14159265358979 / (N);
 
-                        let pos_x = r * Math.sin(digree_rad);
-                        let pos_z = r * Math.cos(digree_rad);
-                        let position_cmd = " ~" + pos_x + " ~1 ~" + pos_z;
-                        let position_cmd_inv = " ~" + (-pos_x) + " ~1 ~" + (-pos_z);
-                        player.runCommand("particle minecraft:wind_explosion_emitter " + position_cmd);
-                        player.runCommand("particle minecraft:wind_explosion_emitter " + position_cmd_inv);
+                            let pos = {
+                                x: player.location.x + r * Math.cos(digree_rad),
+                                y: player.location.y + 1,
+                                z: player.location.z + r * Math.sin(digree_rad)
+                            }
+                            let pos_inverse = {
+                                x: player.location.x - r * Math.cos(digree_rad),
+                                y: player.location.y + 1,
+                                z: player.location.z - r * Math.sin(digree_rad)
+                            }
 
-                        affectByPosition(player, player.dimension, { x: (player.location.x + pos_x), y: (player.location.y + 1), z: (player.location.z + pos_z) });
-                        affectByPosition(player, player.dimension, { x: (player.location.x - pos_x), y: (player.location.y + 1), z: (player.location.z - pos_z) });
+                            wind_attack(player, pos, 0.3);
+                            wind_attack(player, pos_inverse, 0.3);
+                        } catch (error) {
+                            world.sendMessage("" + error.message);
+                        }
+
                     }, i)
                 }
             }
         }
     }, N);
-    world.afterEvents.itemUse.subscribe(data => {
 
+    //右クリックで風の攻撃
+    world.afterEvents.itemUse.subscribe(data => {
+        let player = data.source;
+        let item = data.itemStack;
+
+        if (player.hasTag("jobpvp_role_fuujin")) {
+            //前方に直線状に風の攻撃
+            for (let i = 3; i < N; i++) {
+                system.runTimeout(() => {
+                    let pos = {
+                        x: player.location.x + 2 * i * player.getViewDirection().x,
+                        y: player.location.y + 1,
+                        z: player.location.z + 2 * i * player.getViewDirection().z
+                    }
+
+                    wind_attack(player, pos, 0.8);
+                }, i)
+            }
+        }
     });
-}
+};
