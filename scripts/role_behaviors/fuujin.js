@@ -64,7 +64,11 @@ function storm(player, pos) {
                 z: pos.z + radius * Math.cos(direction_rad)
             }
             radius += expantion;
-            wind_attack(player, wind_position, 0.8);
+            if(i % 2 == 0){
+                wind_reflect(player, wind_position, 0.8);
+            } else {
+                wind_attack(player, wind_position, 0.8);
+            }
         }, i);
     }
 }
