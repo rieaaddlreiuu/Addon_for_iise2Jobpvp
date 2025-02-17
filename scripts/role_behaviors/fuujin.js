@@ -64,7 +64,7 @@ function storm(player, pos) {
                 z: pos.z + radius * Math.cos(direction_rad)
             }
             radius += expantion;
-            if(i % 2 == 0){
+            if (i % 2 == 0) {
                 wind_reflect(player, wind_position, 0.8);
             } else {
                 wind_attack(player, wind_position, 0.8);
@@ -110,7 +110,12 @@ function wind_reflect(player, pos, particle_probability = 0.3) {
             return (EntityBlockDistance(entity, pos) < 3.34 && !entity.hasTag("jobpvp_reflected"));
         })
         .forEach((entity) => {
-            inverseVelocity(entity);
+            if (entity.typeId === "minecraft:player") {
+                Knockback(entity);
+            } else {
+                inverseVelocity(entity);
+            }
+
             entity.runCommand("tag @s add jobpvp_reflected");
             if (entity.matches({ families: ["mob"] })) {
                 entity.applyDamage(12, { cause: "magic", damagingEntity: player });
@@ -207,10 +212,10 @@ export function fuujin_behavior() {
                 y: player.location.y + 1,
                 z: player.location.z + 7 * player.getViewDirection().z
             }
-            for(let i = 0; i < 40; i++){
+            for (let i = 0; i < 40; i++) {
                 system.runTimeout(() => {
                     storm(player, pos);
-                }, i*15);
+                }, i * 15);
             }
         }
     });
