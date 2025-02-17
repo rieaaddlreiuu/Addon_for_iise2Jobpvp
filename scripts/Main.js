@@ -8,6 +8,7 @@ import { snatcher_behavior } from "./role_behaviors/snatcher";
 import { fist_behavior } from "./role_behaviors/fist";
 import { fuujin_behavior } from "./role_behaviors/fuujin";
 import { showRoleSelectionEvents } from "./showRoleSelectionForm";
+import { jobpvpGameProgression } from "./jobpvpGameProgression";
 
 function EntityDistance(entity1, entity2) {
     return Math.sqrt((entity1.location.x - entity2.location.x) ^ 2 + (entity1.location.y - entity2.location.y) ^ 2 + (entity1.location.z - entity2.location.z) ^ 2)
@@ -26,6 +27,7 @@ warrior_behavior();
 snatcher_behavior();
 fist_behavior();
 fuujin_behavior();
+jobpvpGameProgression();
 
 world.afterEvents.itemUse.subscribe(data => {
     let player = data.source;

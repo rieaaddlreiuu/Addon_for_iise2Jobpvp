@@ -1,0 +1,112 @@
+import { world, system, Player, ItemStack, ItemUseAfterEvent } from "@minecraft/server";
+import { ModalFormData, ModalFormResponse, ActionFormData, ActionFormResponse } from "@minecraft/server-ui";
+
+function countDown(count_number, callback) {
+    let command_player = world.getPlayers()[0];
+    for (let i = 0; i < count_number; i++) {
+        system.runTimeout(() => {
+            world.getPlayers().forEach(player => {
+                player.runCommand("playsound random.anvil_land @s");
+                player.runCommand("title @s title §e" + (count_number - i));
+            });
+        }, 20 * i);
+    }
+    system.runTimeout(() => {
+        callback();
+    }, 20 * count_number);
+}
+
+function gameStart() {
+    system.runTimeout(() => {
+        let command_player = world.getPlayers()[0];
+
+        //カウントダウン
+        countDown(4, () => {
+            command_player.runCommand("title @a[tag=jobpvp_joined] title §bSTART！！！！");
+            command_player.runCommand("tag @a[tag=jobpvp_joined] add jobpvp_Playing");
+            command_player.runCommand("function jobpvp_gameStart");
+            command_player.runCommand("playsound random.explode @a[tag=jobpvp_joined]");
+            //プレイヤーの初期化
+            world.getPlayers().forEach(player => {
+                player.runCommand("clear @s");
+                player.runCommand("give @s cooked_beef 3");
+                player.runCommand("effect @s instant_health 20 255 true");
+                player.runCommand("spwanpoint @s 2499 135 450");
+            });
+        });
+    }, 1);
+}
+
+export function jobpvpGameProgression() {
+    system.runInterval(() => {
+        let activePlayers_score = world.scoreboard.getObjective("jobpvp_ActivePlayers");
+        let command_player = world.getPlayers()[0];
+        let scores = activePlayers_score.getScores();
+        let joined_player = world.getPlayers().filter(player => player.hasTag("jobpvp_joined")).length;
+        let roleSelected_player = world.getPlayers().filter(player => player.hasTag("jobpvp_roleSelected")).length;
+        let remain_player = world.getPlayers().filter(player => player.hasTag("jobpvp_Playing")).length;
+        scores.forEach(value => {
+            let score_name = value.participant.displayName;
+            let score = value.score;
+
+
+
+            if (score_name == "activePlayers") {
+                activePlayers_score.setScore("activePlayers", joined_player);
+            }
+            if (score_name == "roleSelectedPlayers") {
+                activePlayers_score.setScore("roleSelectedPlayers", roleSelected_player);
+            }
+            if (score_name == "remainPlayers") {
+                activePlayers_score.setScore("remainPlayers", remain_player);
+            }
+
+
+        });
+        //ゲーム開始
+        if (joined_player == roleSelected_player && world.scoreboard.getObjective("jobpvp_gameState").getScore("game") == 0) {
+            world.scoreboard.getObjective("jobpvp_gameState").setScore("game", 1);
+            world.sendMessage("§e全員が役職を選択しました！！！！");
+            gameStart();
+        }
+        //ゲーム終了
+        if (remain_player == 1 && world.scoreboard.getObjective("jobpvp_gameState").getScore("game") == 1) {
+            world.scoreboard.getObjective("jobpvp_gameState").setScore("game", 0);
+            world.sendMessage("§eゲーム終了！！！！");
+            let winner = world.getPlayers().filter(player => player.hasTag("jobpvp_Playing"))[0];
+            world.getPlayers().forEach(player => {
+                player.runCommand("title @s title §bゲーム終了！！！！");
+            });
+            system.runTimeout(() => {
+                world.getPlayers().forEach(player => {
+                    player.runCommand("title @s title §e勝者 : " + winner.nameTag);
+                });
+                command_player.runCommand("function jobpvp_reset");
+            }, 20);
+        }
+
+    }, 1);
+
+    //プレイヤーが死んだとき
+    world.afterEvents.playerSpawn.subscribe(data => {
+        let player = data.player;
+        //残機を1減らす
+        player.runCommand("scoreboard players add @s jobpvp_Lives -1");
+        //役職設定
+        player.runCommand("function jobpvp_role_setting");
+        //各種effectをつける
+        player.runCommand("effect @s instant_health 20 255 true");
+        player.runCommand("effect @s resistance 5 255 true");
+        player.runCommand("effect @s speed 5 20 true");
+
+        //残機が0になったら
+        system.runTimeout(() => {
+            if (world.scoreboard.getObjective("jobpvp_Lives").getScore(player) <= 0 && player.hasTag("jobpvp_Playing")) {
+                player.runCommand("tag @s add jobpvp_dead");
+                player.runCommand("tag @s remove jobpvp_Playing");
+                player.runCommand("tag @s remove jobpvp_roleSelected");
+                player.runCommand("gamemode spectator @s");
+            }
+        }, 4);
+    });
+}
