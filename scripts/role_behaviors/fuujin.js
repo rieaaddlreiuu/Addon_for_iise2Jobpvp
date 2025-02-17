@@ -201,6 +201,7 @@ export function fuujin_behavior() {
         //必殺技
         //目の前に大きな嵐を起こして大ダメージ
         if (player.hasTag("jobpvp_role_fuujin") && item.typeId === "minecraft:feather") {
+            player.runCommand("clear @p feather 0 1");
             let pos = {
                 x: player.location.x + 7 * player.getViewDirection().x,
                 y: player.location.y + 1,
