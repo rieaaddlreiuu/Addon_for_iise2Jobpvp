@@ -1,6 +1,8 @@
 import { world, system, Player, ItemStack, ItemUseAfterEvent } from "@minecraft/server";
 import { ModalFormData, ModalFormResponse, ActionFormData, ActionFormResponse } from "@minecraft/server-ui";
 
+import { config } from "./Config";
+
 function countDown(count_number, callback) {
     let command_player = world.getPlayers()[0];
     for (let i = 0; i < count_number; i++) {
@@ -18,26 +20,43 @@ function countDown(count_number, callback) {
 
 function gameStart() {
     system.runTimeout(() => {
-        let command_player = world.getPlayers()[0];
-
-        //カウントダウン
-        countDown(4, () => {
-            command_player.runCommand("title @a[tag=jobpvp_joined] title §bSTART！！！！");
-            command_player.runCommand("tag @a[tag=jobpvp_joined] add jobpvp_Playing");
-            command_player.runCommand("function jobpvp_gameStart");
-            command_player.runCommand("playsound random.explode @a[tag=jobpvp_joined]");
-            //プレイヤーの初期化
-            world.getPlayers().forEach(player => {
-                player.runCommand("clear @s");
-                player.runCommand("give @s cooked_beef 3");
-                player.runCommand("effect @s instant_health 20 255 true");
-                player.runCommand("spwanpoint @s 2499 135 450");
+        try {
+            let command_player = world.getPlayers()[0];
+            command_player.runCommand("clear @a[tag=jobpvp_joined]");
+            if (config.configData.fallingDamage) {
+                command_player.runCommand("gamerule fallDamage true");
+            } else {
+                command_player.runCommand("gamerule fallDamage false");
+            }
+            //カウントダウン
+            countDown(4, () => {
+                command_player.runCommand("title @a[tag=jobpvp_joined] title §bSTART！！！！");
+                command_player.runCommand("tag @a[tag=jobpvp_joined] add jobpvp_Playing");
+                command_player.runCommand("function jobpvp_gameStart");
+                command_player.runCommand("playsound random.explode @a[tag=jobpvp_joined]");
+                //プレイヤーの初期化
+                world.getPlayers().filter(player => player.hasTag("jobpvp_joined")).forEach(player => {
+                    config.configData.items.forEach(item => {
+                        player.runCommand("give @s " + item.name + " " + item.count);
+                    });
+                    player.runCommand("effect @s instant_health 20 255 true");
+                    player.runCommand("spawnpoint @s " + config.configData.respawnPos.x + " " + config.configData.respawnPos.y + " " + config.configData.respawnPos.z);
+                    player.runCommand("tp @s " + config.configData.respawnPos.x + " " + config.configData.respawnPos.y + " " + config.configData.respawnPos.z);
+                    if (config.configData.nightVision) {
+                        player.runCommand("effect @s night_vision infinite 255 true");
+                    }
+                    player.runCommand("scoreboard players set @s jobpvp_Lives " + config.configData.stocks);
+                });
             });
-        });
+        } catch (error) {
+            world.sendMessage("§c" + error.message);
+        }
+
     }, 1);
 }
 
 export function jobpvpGameProgression() {
+
     system.runInterval(() => {
         let activePlayers_score = world.scoreboard.getObjective("jobpvp_ActivePlayers");
         let command_player = world.getPlayers()[0];
@@ -82,7 +101,7 @@ export function jobpvpGameProgression() {
                     player.runCommand("title @s title §e勝者 : " + winner.nameTag);
                 });
                 command_player.runCommand("function jobpvp_reset");
-            }, 20);
+            }, 100);
         }
 
     }, 1);
@@ -90,6 +109,7 @@ export function jobpvpGameProgression() {
     //プレイヤーが死んだとき
     world.afterEvents.playerSpawn.subscribe(data => {
         let player = data.player;
+        if (!player.hasTag("jobpvp_Playing")) return;
         //残機を1減らす
         player.runCommand("scoreboard players add @s jobpvp_Lives -1");
         //役職設定
@@ -98,7 +118,9 @@ export function jobpvpGameProgression() {
         player.runCommand("effect @s instant_health 20 255 true");
         player.runCommand("effect @s resistance 5 255 true");
         player.runCommand("effect @s speed 5 20 true");
-
+        if (config.configData.nightVision) {
+            player.runCommand("effect @s night_vision infinite 255 true");
+        }
         //残機が0になったら
         system.runTimeout(() => {
             if (world.scoreboard.getObjective("jobpvp_Lives").getScore(player) <= 0 && player.hasTag("jobpvp_Playing")) {
@@ -108,5 +130,14 @@ export function jobpvpGameProgression() {
                 player.runCommand("gamemode spectator @s");
             }
         }, 4);
+    });
+
+    world.afterEvents.itemUse.subscribe(data => {
+        let player = data.source;
+        let item = data.itemStack;
+
+        if (item.typeId === "minecraft:compass"){
+            config.showConfigForm(player);
+        }
     });
 }
