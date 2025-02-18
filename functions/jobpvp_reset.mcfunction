@@ -4,6 +4,7 @@ tag @a remove jobpvp_Playing
 tag @a remove jobpvp_Spectator
 tag @a remove jobpvp_roleSelected
 tag @a remove jobpvp_winner
+tag @a remove jobpvp_waiting
 
 scoreboard players set roleSelectedPlayers jobpvp_ActivePlayers 0
 scoreboard players set game jobpvp_gameState 0
@@ -17,4 +18,3 @@ effect @a clear
 
 tellraw @a {"rawtext":[{"text":"§bリセットしました§r"}]}
 clear @a[tag=jobpvp_joined]
-tp @a[tag=jobpvp_joined] 2404 -6 429

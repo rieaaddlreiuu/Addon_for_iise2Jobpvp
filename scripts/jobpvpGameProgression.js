@@ -20,38 +20,33 @@ function countDown(count_number, callback) {
 
 function gameStart() {
     system.runTimeout(() => {
-        try {
-            let command_player = world.getPlayers()[0];
-            command_player.runCommand("clear @a[tag=jobpvp_joined]");
-            if (config.configData.fallingDamage) {
-                command_player.runCommand("gamerule fallDamage true");
-            } else {
-                command_player.runCommand("gamerule fallDamage false");
-            }
-            //カウントダウン
-            countDown(4, () => {
-                command_player.runCommand("title @a[tag=jobpvp_joined] title §bSTART！！！！");
-                command_player.runCommand("tag @a[tag=jobpvp_joined] add jobpvp_Playing");
-                command_player.runCommand("function jobpvp_gameStart");
-                command_player.runCommand("playsound random.explode @a[tag=jobpvp_joined]");
-                //プレイヤーの初期化
-                world.getPlayers().filter(player => player.hasTag("jobpvp_joined")).forEach(player => {
-                    config.configData.items.forEach(item => {
-                        player.runCommand("give @s " + item.name + " " + item.count);
-                    });
-                    player.runCommand("effect @s instant_health 20 255 true");
-                    player.runCommand("spawnpoint @s " + config.configData.respawnPos.x + " " + config.configData.respawnPos.y + " " + config.configData.respawnPos.z);
-                    player.runCommand("tp @s " + config.configData.respawnPos.x + " " + config.configData.respawnPos.y + " " + config.configData.respawnPos.z);
-                    if (config.configData.nightVision) {
-                        player.runCommand("effect @s night_vision infinite 255 true");
-                    }
-                    player.runCommand("scoreboard players set @s jobpvp_Lives " + config.configData.stocks);
-                });
-            });
-        } catch (error) {
-            world.sendMessage("§c" + error.message);
+        let command_player = world.getPlayers()[0];
+        command_player.runCommand("clear @a[tag=jobpvp_joined]");
+        if (config.configData.fallingDamage) {
+            command_player.runCommand("gamerule fallDamage true");
+        } else {
+            command_player.runCommand("gamerule fallDamage false");
         }
-
+        //カウントダウン
+        countDown(4, () => {
+            command_player.runCommand("title @a[tag=jobpvp_joined] title §bSTART！！！！");
+            command_player.runCommand("tag @a[tag=jobpvp_joined] add jobpvp_Playing");
+            command_player.runCommand("function jobpvp_gameStart");
+            command_player.runCommand("playsound random.explode @a[tag=jobpvp_joined]");
+            //プレイヤーの初期化
+            world.getPlayers().filter(player => player.hasTag("jobpvp_joined")).forEach(player => {
+                config.configData.items.forEach(item => {
+                    player.runCommand("give @s " + item.name + " " + item.count);
+                });
+                player.runCommand("effect @s instant_health 20 255 true");
+                player.runCommand("spawnpoint @s " + config.configData.respawnPos.x + " " + config.configData.respawnPos.y + " " + config.configData.respawnPos.z);
+                player.runCommand("tp @s " + config.configData.respawnPos.x + " " + config.configData.respawnPos.y + " " + config.configData.respawnPos.z);
+                if (config.configData.nightVision) {
+                    player.runCommand("effect @s night_vision infinite 255 true");
+                }
+                player.runCommand("scoreboard players set @s jobpvp_Lives " + config.configData.stocks);
+            });
+        });
     }, 1);
 }
 
@@ -82,6 +77,12 @@ export function jobpvpGameProgression() {
 
 
         });
+        //待機部屋へ移動
+        world.getPlayers().filter(player => (player.hasTag("jobpvp_roleSelected") && !player.hasTag("jobpvp_waiting"))).forEach(player => {
+            player.runCommand("gamemode adventure @s");
+            player.runCommand("tag @s add jobpvp_waiting");
+            player.runCommand("tp @s " + config.configData.readyRoomPos.x + " " + config.configData.readyRoomPos.y + " " + config.configData.readyRoomPos.z);
+        });
         //ゲーム開始
         if (joined_player == roleSelected_player && world.scoreboard.getObjective("jobpvp_gameState").getScore("game") == 0) {
             world.scoreboard.getObjective("jobpvp_gameState").setScore("game", 1);
@@ -101,6 +102,7 @@ export function jobpvpGameProgression() {
                     player.runCommand("title @s title §e勝者 : " + winner.nameTag);
                 });
                 command_player.runCommand("function jobpvp_reset");
+                command_player.runCommand("tp @a[tag=jobpvp_joined] " + config.configData.lobbyPos.x + " " + config.configData.lobbyPos.y + " " + config.configData.lobbyPos.z);
             }, 100);
         }
 
@@ -136,8 +138,14 @@ export function jobpvpGameProgression() {
         let player = data.source;
         let item = data.itemStack;
 
-        if (item.typeId === "minecraft:compass"){
+        if (item.typeId === "minecraft:compass") {
             config.showConfigForm(player);
+        }
+        //全員を役職設定部屋に移動
+        if(item.typeId === "minecraft:clock"){
+            world.getPlayers().filter(player => player.hasTag("jobpvp_joined")).forEach(player => {
+                player.runCommand("tp @s " + config.configData.roleSelectRoomPos.x + " " + config.configData.roleSelectRoomPos.y + " " + config.configData.roleSelectRoomPos.z);
+            });
         }
     });
 }
