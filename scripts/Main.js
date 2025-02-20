@@ -33,7 +33,7 @@ world.afterEvents.itemUse.subscribe(data => {
     let item = data.itemStack;
 
     if (item.typeId === "jobpvp:sonar") {
-        if (player.hasTag("jobpvp_cooltime")) {
+        if (player.hasTag("jobpvp_sonarCooltime")) {
             player.runCommand("tellraw @s {\"rawtext\":[{\"text\":\"クールタイムです！\"}]}");
             return;
         }
@@ -53,9 +53,9 @@ world.afterEvents.itemUse.subscribe(data => {
 
             }
         }
-        player.addTag("jobpvp_cooltime");
+        player.addTag("jobpvp_sonarCooltime");
         system.runTimeout(() => {
-            player.removeTag("jobpvp_cooltime");
+            player.removeTag("jobpvp_sonarCooltime");
         }, 100);
     }
 
