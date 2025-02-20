@@ -24,7 +24,7 @@ export function fist_behavior() {
     });
     system.runInterval(() => {
         for (const player of world.getPlayers()) {
-            if(player.hasTag("jobpvp_role_fist") && isBarehands(player)){
+            if(player.hasTag("jobpvp_role_fist") && player.hasTag("jobpvp_Playing") && isBarehands(player)){
                 player.runCommand("effect @s strength 20 12 true");
             } else {
                 player.removeEffect("strength");
@@ -33,7 +33,7 @@ export function fist_behavior() {
     }, 3);
     system.runInterval(()=>{
         for (const player of world.getPlayers()) {
-            if(player.hasTag("jobpvp_role_fist")){
+            if(player.hasTag("jobpvp_role_fist") && player.hasTag("jobpvp_Playing")){
                 player.runCommand("function others/inventory_lock")
             }
         }

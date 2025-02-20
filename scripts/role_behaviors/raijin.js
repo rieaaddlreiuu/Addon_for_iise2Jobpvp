@@ -5,7 +5,7 @@ export function raijin_behavior() {
     world.afterEvents.itemUse.subscribe(data => {
         let player = data.source;
         let item = data.itemStack;
-        if (player.hasTag("jobpvp_role_raijin") && !player.hasTag("jobpvp_cooldown")) {
+        if (player.hasTag("jobpvp_role_raijin") && player.hasTag("jobpvp_Playing") && !player.hasTag("jobpvp_cooldown")) {
             player.runCommand("tag @p add jobpvp_cooldown");
             system.runTimeout(() => {
                 player.runCommand("tag @p remove jobpvp_cooldown");
@@ -20,7 +20,7 @@ export function raijin_behavior() {
                 }
             }
         }
-        if (player.hasTag("jobpvp_role_raijin")) {
+        if (player.hasTag("jobpvp_role_raijin") && player.hasTag("jobpvp_Playing")) {
             if (item.typeId === "minecraft:blaze_rod") {
                 player.runCommand("clear @p blaze_rod 0 1");
                 for (let i = 1; i < 40; i++) {
@@ -37,7 +37,7 @@ export function raijin_behavior() {
         let player = data.damageSource.damagingEntity;
         let hurtEntity = data.hurtEntity;
 
-        if (player.hasTag("jobpvp_role_raijin")) {
+        if (player.hasTag("jobpvp_role_raijin") && player.hasTag("jobpvp_Playing")) {
             system.runTimeout(() => {
                 hurtEntity.runCommand("summon lightning_bolt ~~~")
                 return;

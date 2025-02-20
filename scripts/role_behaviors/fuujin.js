@@ -143,7 +143,7 @@ export function fuujin_behavior() {
     //低速落下と風のエフェクト
     system.runInterval(() => {
         for (const player of world.getPlayers()) {
-            if (player.hasTag("jobpvp_role_fuujin") && isBarehands(player)) {
+            if (player.hasTag("jobpvp_role_fuujin") && player.hasTag("jobpvp_Playing") && isBarehands(player)) {
                 player.runCommand("effect @s slow_falling 1 255 true");
                 runWithProbability(0.1, () => {
                     player.runCommand("particle minecraft:wind_explosion_emitter ~~-1~");
@@ -155,7 +155,7 @@ export function fuujin_behavior() {
     //風の攻撃
     system.runInterval(() => {
         for (const player of world.getPlayers()) {
-            if (player.hasTag("jobpvp_role_fuujin") && isBarehands(player)) {
+            if (player.hasTag("jobpvp_role_fuujin") && player.hasTag("jobpvp_Playing") && isBarehands(player)) {
                 for (let i = 0; i < N; i++) {
                     system.runTimeout(() => {
                         try {
@@ -189,7 +189,7 @@ export function fuujin_behavior() {
         let player = data.source;
         let item = data.itemStack;
 
-        if (player.hasTag("jobpvp_role_fuujin") && item.typeId === "minecraft:iron_sword") {
+        if (player.hasTag("jobpvp_role_fuujin") && player.hasTag("jobpvp_Playing") && item.typeId === "minecraft:iron_sword") {
             //前方に直線状に風の攻撃
             for (let i = 3; i < N; i++) {
                 system.runTimeout(() => {
@@ -205,7 +205,7 @@ export function fuujin_behavior() {
         }
         //必殺技
         //目の前に大きな嵐を起こして大ダメージ
-        if (player.hasTag("jobpvp_role_fuujin") && item.typeId === "minecraft:feather") {
+        if (player.hasTag("jobpvp_role_fuujin") && player.hasTag("jobpvp_Playing") && item.typeId === "minecraft:feather") {
             player.runCommand("clear @p feather 0 1");
             let pos = {
                 x: player.location.x + 7 * player.getViewDirection().x,

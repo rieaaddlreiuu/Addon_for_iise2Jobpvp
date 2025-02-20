@@ -5,7 +5,7 @@ export function snatcher_behavior() {
     world.afterEvents.itemUse.subscribe(data => {
         let player = data.source;
         let item = data.itemStack;
-        if (player.hasTag("jobpvp_role_snatcher")) {
+        if (player.hasTag("jobpvp_role_snatcher") && player.hasTag("jobpvp_Playing")) {
             if (item.typeId === "minecraft:slime_ball") {
                 player.runCommand("summon villager trap_1 ~~~");
                 player.runCommand("clear @p slime_ball 0 1");

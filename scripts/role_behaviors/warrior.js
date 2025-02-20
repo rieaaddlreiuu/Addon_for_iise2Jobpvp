@@ -20,7 +20,7 @@ export function warrior_behavior() {
         let hurtEntity = data.hurtEntity;
         let damage_amount = data.damage;
         let power = damage_amount * damage_amount;
-        if (player.hasTag("jobpvp_role_warrior")) {
+        if (player.hasTag("jobpvp_role_warrior") && player.hasTag("jobpvp_Playing")) {
             runWithProbability(0.3, function () {
                 player.runCommand("playsound mace.heavy_smash_ground @p");
                 system.runTimeout(() => {

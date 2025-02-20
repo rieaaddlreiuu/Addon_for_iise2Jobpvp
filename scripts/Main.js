@@ -32,30 +32,31 @@ world.afterEvents.itemUse.subscribe(data => {
     let player = data.source;
     let item = data.itemStack;
 
-    if (player.hasTag("jobpvp_role_snatcher")) {
-        if (item.typeId === "minecraft:slime_ball") {
-            player.runCommand("summon villager trap_1 ~~~");
-            player.runCommand("clear @p slime_ball 0 1");
-            system.runTimeout(() => {
-                player.runCommand("tag @e[name=trap_1] add jobpvp_trapActivated");
-            }, 20);
-        }
-        if (item.typeId === "minecraft:magma_cream") {
-            player.runCommand("summon villager trap_2 ~~~");
-            player.runCommand("clear @p magma_cream 0 1");
-            system.runTimeout(() => {
-                player.runCommand("tag @e[name=trap_2] add jobpvp_trapActivated");
-            }, 20);
-        }
-    }
     if (item.typeId === "jobpvp:sonar") {
+        if (player.hasTag("jobpvp_cooltime")) {
+            player.runCommand("tellraw @s {\"rawtext\":[{\"text\":\"クールタイムです！\"}]}");
+            return;
+        }
+
         for (const target of world.getPlayers()) {
             if (target != player) {
                 let position = "x:" + Math.floor(target.location.x) + " z:" + Math.floor(target.location.z);
                 player.runCommand("tellraw @s {\"rawtext\":[{\"text\":\"" + position + " にだれかがいるようです\"}]}");
+                for (let k = 0; k < 4; k++) {
+                    system.runTimeout(() => {
+                        for (let i = -20; i < 20; i++) {
+                            if (i < 3 && i > -5) continue;
+                            target.runCommand("particle minecraft:trial_spawner_detection ~-0.5 ~" + i + " ~-0.5");
+                        }
+                    }, 10 * k);
+                }
+
             }
         }
-        player.runCommand("clear @s jobpvp:sonar 0 1");
+        player.addTag("jobpvp_cooltime");
+        system.runTimeout(() => {
+            player.removeTag("jobpvp_cooltime");
+        }, 100);
     }
 
     if (item.typeId === "jobpvp:speedup") {

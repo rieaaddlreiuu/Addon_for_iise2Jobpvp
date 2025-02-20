@@ -108,6 +108,11 @@ export function jobpvpGameProgression() {
 
     }, 1);
 
+    system.runInterval(() => {
+        let command_player = world.getPlayers()[0];
+        command_player.runCommand("function jobpvp_role_setting");
+    });
+
     //プレイヤーが死んだとき
     world.afterEvents.playerSpawn.subscribe(data => {
         let player = data.player;
@@ -142,7 +147,7 @@ export function jobpvpGameProgression() {
             config.showConfigForm(player);
         }
         //全員を役職設定部屋に移動
-        if(item.typeId === "minecraft:clock"){
+        if (item.typeId === "minecraft:clock") {
             world.getPlayers().filter(player => player.hasTag("jobpvp_joined")).forEach(player => {
                 player.runCommand("tp @s " + config.configData.roleSelectRoomPos.x + " " + config.configData.roleSelectRoomPos.y + " " + config.configData.roleSelectRoomPos.z);
             });

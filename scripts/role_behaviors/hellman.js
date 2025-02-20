@@ -17,7 +17,7 @@ export function hellman_behavior() {
     world.afterEvents.itemUse.subscribe(data => {
         let player = data.source;
         let item = data.itemStack;
-        if (player.hasTag("jobpvp_role_hellman") && item.typeId === "minecraft:blaze_powder") {
+        if (player.hasTag("jobpvp_role_hellman") && player.hasTag("jobpvp_Playing") && item.typeId === "minecraft:blaze_powder") {
             player.runCommand("clear @p blaze_powder 0 1");
             for (const target of world.getPlayers()) {
                 if (target != player && EntityDistance(player, target) < 10.0) {
@@ -94,7 +94,7 @@ export function hellman_behavior() {
         let projectile = data.damageSource.damagingProjectile;
         let damage_amount = data.damage;
         let power = damage_amount * 3;
-        if (player.hasTag("jobpvp_role_hellman")) {
+        if (player.hasTag("jobpvp_role_hellman") && player.hasTag("jobpvp_Playing")) {
             system.runTimeout(() => {
                 hurtEntity.runCommand("setblock ~~~ fire keep");
                 return;
